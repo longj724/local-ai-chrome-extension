@@ -117,7 +117,7 @@ const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText
   const updateUserMessageOptimistically = (prompt = '') => {
     const newUserQuestion: Message = {
       role: 'user',
-      content: `"""\n${selectedText}\n"""\n${userInput}`,
+      content: selectedText ? `"""\n${selectedText}\n"""\n${userInput}` : userInput,
     };
 
     setMessages((prev) => [...prev!, newUserQuestion]);
