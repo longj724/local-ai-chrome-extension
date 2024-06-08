@@ -74,6 +74,7 @@ const Panel = () => {
         model={selectedModel}
         selectedText={selectedText}
         setMessages={setMessages}
+        setSelectedText={setSelectedText}
       />
     </div>
   );
