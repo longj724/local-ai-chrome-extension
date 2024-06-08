@@ -12,6 +12,7 @@ import { Model } from './types';
 const Panel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [selectedText, setSelectedText] = useState<string | null>(null);
 
   const { data: models, isLoading } = useQuery({
     queryKey: ['models'],
@@ -39,19 +40,40 @@ const Panel = () => {
     });
   }, [messages]);
 
+  useEffect(() => {
+    const handleMessage = (
+      message: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response: any) => void
+    ) => {
+      if (message.type === 'CHECK_PANEL_READY') {
+        sendResponse({ ready: true });
+      } else if (message.type === 'SELECTED_TEXT_MENU_OPTION_RESPONSE') {
+        setSelectedText(message.text);
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, []);
+
   return (
     <div className="flex h-screen max-h-screen flex-col items-center bg-muted/40">
       <ChatHeader
+        isLoading={isLoading}
         models={models}
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
-        isLoading={isLoading}
       />
       <ChatMessages messages={messages} />
       <ChatInput
         messages={messages}
-        setMessages={setMessages}
         model={selectedModel}
+        selectedText={selectedText}
+        setMessages={setMessages}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 // External Dependencies
 import { CircleStop, Send } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useRef, useState } from 'react';
+import { type Dispatch, useEffect,type SetStateAction, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 // Relative Dependencies
@@ -12,10 +12,11 @@ import { Model } from '../types';
 type Props = {
   messages: Message[];
   model: Model | null;
+  selectedText: string | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
 };
 
-const ChatInput = ({ messages, model, setMessages }: Props) => {
+const ChatInput = ({ messages, model, selectedText,setMessages }: Props) => {
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -123,6 +124,12 @@ const ChatInput = ({ messages, model, setMessages }: Props) => {
   const stopGenerating = () => {
     setIsGenerating(false);
   };
+
+  useEffect(() => {
+    if (selectedText) {
+      setUserInput((curInput: string) => `"""\n${selectedText}\n""" ${curInput}`);
+    }
+  }, [selectedText]);
 
   return (
     <div className="mb-4 mt-auto flex w-4/5">

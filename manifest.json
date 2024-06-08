@@ -23,7 +23,7 @@
   "icons": {
     "128": "icon-128.png"
   },
-  "permissions": ["activeTab", "storage", "sidePanel"],
+  "permissions": ["activeTab", "contextMenus", "storage", "sidePanel"],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
