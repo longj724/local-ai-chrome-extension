@@ -16,7 +16,7 @@ const SettingsMenu = () => {
       <DropdownMenuTrigger asChild>
         <Settings size={20} className="hover:cursor-pointer" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="bg-white">
+      <DropdownMenuContent align="start" >
         <DropdownMenuItem
           className="flex flex-row gap-2 hover:cursor-pointer"
           onSelect={(e) => e.preventDefault()}

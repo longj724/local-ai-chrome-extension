@@ -23,7 +23,15 @@
   "icons": {
     "128": "icon-128.png"
   },
-  "permissions": ["activeTab", "contextMenus", "storage", "sidePanel"],
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "contextMenus",
+    "storage",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],

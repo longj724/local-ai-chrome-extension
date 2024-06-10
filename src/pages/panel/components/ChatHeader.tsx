@@ -45,7 +45,7 @@ const ChatHeader = ({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 {models?.map((model) => (
                   <SelectItem
                     key={model.name}

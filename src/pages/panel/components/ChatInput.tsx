@@ -128,8 +128,8 @@ const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText
   };
 
   return (
-    <div className="mb-4 mt-auto flex w-4/5">
-      <div className="relative mt-3 flex flex-col min-h-[60px] w-full items-center justify-center rounded-xl border-2 border-input">
+    <div className="mb-4 mt-2 flex w-4/5">
+      <div className="relative flex flex-col min-h-[60px] w-full items-center justify-center rounded-xl border-2 border-input">
         {selectedText && <SelectedText setSelectedText={setSelectedText} text={selectedText} />}
         <div className='flex flex-row items-center justify-center relative w-full'>
           <TextareaAutosize
