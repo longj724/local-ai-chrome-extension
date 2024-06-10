@@ -58,7 +58,7 @@ const Panel = () => {
         if (message.done) {
           setEmbeddingsLoadingText(null);
         } else {
-          setEmbeddingsLoadingText(`Generating embeddings for ${message.docNumber} of ${message.docCount}`);
+          setEmbeddingsLoadingText(`${message.docNumber} of ${message.docCount} embeddings generated`);
         }
       }
     };
@@ -97,8 +97,6 @@ const Panel = () => {
         const pageContent = results[0].result[0];
         const isHighlightedContent = results[0].result[1];
         const imageURLs = results[0].result[2];
-        
-        console.log('pageContent is:', pageContent);
 
         // if an attachment is present, the URL gets set to a fake file URL
         // const attachments = [];
@@ -139,7 +137,7 @@ const Panel = () => {
       <div className="flex flex-row gap-1 w-4/5 mt-3">
         <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} />
         <p>Parse Webpage for Chat</p>
-        <p>{embeddingsLoadingText}</p>
+        <p>- {embeddingsLoadingText}</p>
       </div>
       <ChatInput
         messages={messages}
