@@ -60,6 +60,8 @@ const Panel = () => {
         } else {
           setEmbeddingsLoadingText(`${message.docNumber} of ${message.docCount} embeddings generated`);
         }
+      } else if (message.type === 'TAB_CHANGED') {
+        setParseWebpage(false);
       }
     };
 
@@ -135,9 +137,9 @@ const Panel = () => {
       />
       <ChatMessages messages={messages} />
       <div className="flex flex-row gap-1 w-4/5 mt-3">
-        <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} />
+        <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} checked={parseWebpage} />
         <p>Parse Webpage for Chat</p>
-        <p>- {embeddingsLoadingText}</p>
+        <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
       </div>
       <ChatInput
         messages={messages}

@@ -64,6 +64,18 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.tabs.get(activeInfo.tabId, (tab) => {
+    chrome.runtime.sendMessage({ type: 'TAB_CHANGED', tab });
+  });
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete') {
+    chrome.runtime.sendMessage({ type: 'TAB_CHANGED', tab });
+  }
+});
+
 interface VectorStoreMetadata {
   vectorStore: EnhancedMemoryVectorStore;
   createdAt: number;
