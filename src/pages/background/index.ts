@@ -152,6 +152,11 @@ chrome.runtime.onMessage.addListener(async (message) => {
             );
           });
       }
+
+      vectorStoreMap.set(url, {
+        vectorStore: vectorStore,
+        createdAt: Date.now(),
+      });
     }
   } else if (message.type === 'SEND_MESSAGE') {
     const { content, url, useWebPageContext, ollamaUrl } = message;

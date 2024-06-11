@@ -55,7 +55,7 @@ const Panel = () => {
         setSelectedText(message.text);
       } else if (message.type === 'PARSE_WEBPAGE_RESPONSE') {
         if (message.done) {
-          setEmbeddingsLoadingText(null);
+          setEmbeddingsLoadingText('Embeddings generated for this webpage');
         } else {
           setEmbeddingsLoadingText(`${message.docNumber} of ${message.docCount} embeddings generated`);
         }
