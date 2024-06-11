@@ -1,6 +1,6 @@
 // External Dependencies
 import { CircleStop, Send } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 
 // Relative Dependencies
@@ -11,14 +11,16 @@ import { Model } from '../types';
 import SelectedText from './SelectedText';
 
 type Props = {
+  currentTab: chrome.tabs.Tab | null;
   messages: Message[];
   model: Model | null;
+  parseWebpage: boolean;
   selectedText: string | null;
   setMessages: Dispatch<SetStateAction<Message[]>>;
   setSelectedText: Dispatch<SetStateAction<string | null>>;
 };
 
-const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText }: Props) => {
+const ChatInput = ({ currentTab, messages, model, parseWebpage, selectedText, setMessages, setSelectedText }: Props) => {
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -95,6 +97,40 @@ const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText
     },
   });
 
+  useEffect(() => {
+    const handleMessage = (
+      message: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response: any) => void
+    ) => {
+      if (message.type === 'SEND_MESSAGE_RESPONSE') {
+        if (!message.done) {
+          setMessages((prev: Message[]) => {
+            if (!message.firstCompletion) {
+              const existingMessages = prev.slice(0, -1);
+              const lastMessage = prev[prev.length - 1]!;
+              const updatedLastMessage = {
+                ...lastMessage,
+                content: message.completion,
+              };
+              return [...existingMessages, updatedLastMessage];
+            } else {
+              return [...prev!, { role: 'assistant', content: message.completion }];
+            }
+          });
+        } else {
+          setIsGenerating(false);
+        }
+      } 
+    };
+
+    chrome.runtime.onMessage.addListener(handleMessage);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, []);
+
   const chatInputRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInputChange = (text: string) => {
@@ -111,7 +147,14 @@ const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText
   const handleSendMessage = () => {
     setIsGenerating(true);
     updateUserMessageOptimistically();
-    sendMessage();
+    chrome.runtime.sendMessage({ 
+      content: selectedText ? `"""\n${selectedText}\n"""\n${userInput}` : userInput,
+      model: model?.name ?? 'llama3',
+      ollamaUrl: 'http://localhost:11434',
+      type: 'SEND_MESSAGE',
+      url: currentTab?.url ? currentTab.url : '',
+      useWebPageContext: parseWebpage,
+    });
   };
 
   const updateUserMessageOptimistically = (prompt = '') => {
@@ -121,6 +164,7 @@ const ChatInput = ({ messages, model, selectedText, setMessages, setSelectedText
     };
 
     setMessages((prev) => [...prev!, newUserQuestion]);
+    setUserInput('');
   };
 
   const stopGenerating = () => {

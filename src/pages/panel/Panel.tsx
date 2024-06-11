@@ -17,6 +17,7 @@ const Panel = () => {
   const [selectedText, setSelectedText] = useState<string | null>(null);
   const [parseWebpage, setParseWebpage] = useState<boolean>(false);
   const [embeddingsLoadingText, setEmbeddingsLoadingText] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
 
   const { data: models, isLoading } = useQuery({
     queryKey: ['models'],
@@ -37,11 +38,9 @@ const Panel = () => {
   });
 
   useEffect(() => {
-    chrome.storage.local.get('chatMessages', (result) => {
-      if (result.chatMessages) {
-        setMessages(result.chatMessages);
-      }
-    });
+    if (messages.length > 0) {
+      chrome.storage.session.set({ chatMessages: messages })
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -61,6 +60,7 @@ const Panel = () => {
           setEmbeddingsLoadingText(`${message.docNumber} of ${message.docCount} embeddings generated`);
         }
       } else if (message.type === 'TAB_CHANGED') {
+        setCurrentTab(message.tab);
         setParseWebpage(false);
       }
     };
@@ -110,16 +110,6 @@ const Panel = () => {
 
         chrome.runtime
           .sendMessage({ type: "PARSE_WEBPAGE", context: pageContent, chunkSize: 500, chunkOverlap: 0, url: url })
-          // .then(() => {
-          //   chrome.runtime.sendMessage({
-          //     // skipCache: isHighlightedContent,
-          //     chunkOverlap: 0,
-          //     chunkSize: 500,
-          //     context: pageContent,
-          //     // imageURLs: imageURLs,
-          //     url: url,
-          //   });
-          // });
       })
       .catch((error) => {
         console.log(`Error: ${error}`);
@@ -142,11 +132,14 @@ const Panel = () => {
         <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
       </div>
       <ChatInput
+        currentTab={currentTab}
         messages={messages}
         model={selectedModel}
+        parseWebpage={parseWebpage}
         selectedText={selectedText}
         setMessages={setMessages}
         setSelectedText={setSelectedText}
+        
       />
     </div>
   );

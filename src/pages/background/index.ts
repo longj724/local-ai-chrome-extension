@@ -111,8 +111,6 @@ chrome.runtime.onMessage.addListener(async (message) => {
       const documents = await createDocuments(chunkSize, chunkOverlap, context);
       documentsCount = documents.length;
 
-      console.log('documents', documents.length);
-
       // Load Documents into the vector store
       // TODO: Add support for selecting embedding model
       vectorStore = new EnhancedMemoryVectorStore(
@@ -156,7 +154,7 @@ chrome.runtime.onMessage.addListener(async (message) => {
       }
     }
   } else if (message.type === 'SEND_MESSAGE') {
-    const { content, url, useWebPageContext, host } = message;
+    const { content, url, useWebPageContext, ollamaUrl } = message;
     const prompt = content.trim();
 
     if (useWebPageContext && vectorStoreMap.has(url)) {
@@ -172,10 +170,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
 
       const chatPrompt = ChatPromptTemplate.fromMessages([
         SystemMessagePromptTemplate.fromTemplate(SYS_PROMPT_TEMPLATE),
-        ...(await getMessages()),
+        ...(await getMessages(content)),
       ]);
 
-      const model = getChatModel(host, message.model);
+      const model = getChatModel(ollamaUrl, message.model);
       const chain = RunnableSequence.from([
         {
           filtered_context: retriever.pipe(formatDocumentsAsString),
@@ -188,8 +186,10 @@ chrome.runtime.onMessage.addListener(async (message) => {
       const stream = await chain.stream(prompt);
       streamChunks(stream);
     } else {
-      const chatPrompt = ChatPromptTemplate.fromMessages(await getMessages());
-      const model = getChatModel(host, message.model);
+      const chatPrompt = ChatPromptTemplate.fromMessages(
+        await getMessages(content)
+      );
+      const model = getChatModel(ollamaUrl, message.model);
       const chain = chatPrompt.pipe(model).pipe(new StringOutputParser());
 
       const stream = await chain.stream({});
@@ -215,22 +215,32 @@ chrome.runtime.onMessage.addListener(async (message) => {
 const streamChunks = async (stream: IterableReadableStream<string>) => {
   completion = '';
   try {
+    let index = 0;
     for await (const chunk of stream) {
       completion += chunk;
       chrome.runtime
-        .sendMessage({ completion: completion, sender: 'assistant' })
+        .sendMessage({
+          type: 'SEND_MESSAGE_RESPONSE',
+          completion: completion,
+          sender: 'assistant',
+          done: false,
+          firstCompletion: index === 0,
+        })
         .catch(() => {
           console.log('Sending partial completion, but popup is closed...');
         });
+      index++;
     }
   } catch (error) {
     console.log('Cancelling LLM request...');
     return;
   }
-  chrome.runtime.sendMessage({ done: true }).catch(() => {
-    console.log('Sending done message, but popup is closed...');
-    chrome.storage.sync.set({ completion: completion, sender: 'assistant' });
-  });
+  chrome.runtime
+    .sendMessage({ type: 'SEND_MESSAGE_RESPONSE', done: true })
+    .catch(() => {
+      console.log('Sending done message, but popup is closed...');
+      chrome.storage.sync.set({ completion: completion, sender: 'assistant' });
+    });
 };
 
 const createDocuments = async (
@@ -261,10 +271,9 @@ const createDocuments = async (
   return documents;
 };
 
-const getMessages = async (): Promise<BaseMessage[]> => {
+const getMessages = async (newMessage: string): Promise<BaseMessage[]> => {
   let chatMsgs: BaseMessage[] = [];
-  // the array of persisted messages includes the current prompt
-  const data = await chrome.storage.session.get(['messages']);
+  const data = await chrome.storage.session.get(['chatMessages']);
 
   if (data.messages) {
     const lumosMsgs = data.messages as Message[];
@@ -300,15 +309,14 @@ const getMessages = async (): Promise<BaseMessage[]> => {
     //       image_url: image,
     //     });
     //   });
-
-    //   // replace the last element with a new HumanMessage that contains the image content
-    //   chatMsgs.push(
-    //     new HumanMessage({
-    //       content: content,
-    //     })
-    //   );
-    // }
   }
+
+  chatMsgs.push(
+    new HumanMessage({
+      content: newMessage,
+    })
+  );
+
   return chatMsgs;
 };
 
