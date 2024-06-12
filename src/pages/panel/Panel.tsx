@@ -143,7 +143,7 @@ const Panel = () => {
         setSelectedModel={setSelectedModel}
       />
       <ChatMessages messages={messages} />
-      <div className="flex flex-row gap-1 w-4/5 mt-3">
+      <div className="flex flex-row gap-1 w-4/5 mt-3 items-center">
         <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} checked={parseWebpage} />
         <p>Parse Webpage for Chat</p>
         <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
