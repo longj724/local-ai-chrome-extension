@@ -18,7 +18,7 @@ const SettingsMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" >
         <DropdownMenuItem
-          className="flex flex-row gap-2 hover:cursor-pointer"
+          className="flex flex-row gap-2 hover:cursor-pointer w-full"
           onSelect={(e) => e.preventDefault()}
         >
           <ModeToggle />
