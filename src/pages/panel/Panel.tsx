@@ -10,6 +10,7 @@ import ChatHeader from './components/ChatHeader';
 import { Model } from './types';
 import { Switch } from './components/ui/switch';
 import { getHtmlContent } from '../content/index';
+import ChatToolbar from './components/ChatToolbar';
 
 const Panel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -146,6 +147,7 @@ const Panel = () => {
         <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} checked={parseWebpage} />
         <p>Parse Webpage for Chat</p>
         <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
+        <ChatToolbar messages={messages} setMessages={setMessages} />
       </div>
       <ChatInput
         currentTab={currentTab}
