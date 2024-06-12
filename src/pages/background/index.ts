@@ -278,7 +278,7 @@ const createDocuments = async (
 
 const getMessages = async (newMessage: string): Promise<BaseMessage[]> => {
   let chatMsgs: BaseMessage[] = [];
-  const data = await chrome.storage.session.get(['chatMessages']);
+  const data = await chrome.storage.local.get(['chatMessages']);
 
   if (data.messages) {
     const lumosMsgs = data.messages as Message[];

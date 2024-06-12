@@ -31,7 +31,12 @@ const Panel = () => {
 
       const models = (await response.json()).models as Model[];
 
-      if (models.length !== 0) setSelectedModel(models[0]);
+      const savedSelectedModel = await chrome.storage.local.get(['selectedModel']);
+      if (savedSelectedModel.selectedModel) {
+        setSelectedModel(savedSelectedModel.selectedModel);
+      }  else if (models.length !== 0 && !selectedModel) {
+        setSelectedModel(models[0]);
+      }
 
       return models;
     },
@@ -39,9 +44,20 @@ const Panel = () => {
 
   useEffect(() => {
     if (messages.length > 0) {
-      chrome.storage.session.set({ chatMessages: messages })
+      chrome.storage.local.set({ chatMessages: messages })
     }
   }, [messages]);
+
+  const loadInitialData = async () => {
+    const savedMessages = await chrome.storage.local.get(['chatMessages']);
+    if (savedMessages.chatMessages) {
+      setMessages(savedMessages.chatMessages);
+    }
+  }
+
+  useEffect( () => {
+    loadInitialData();
+  }, [])
 
   useEffect(() => {
     const handleMessage = (
