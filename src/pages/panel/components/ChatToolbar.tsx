@@ -1,5 +1,6 @@
 // External Dependencies
-import { Trash } from "lucide-react"
+import { Radio,Trash } from "lucide-react"
+import { useQuery } from '@tanstack/react-query';
 
 // Relative Dependencies
 import { Message } from '../types';
@@ -13,13 +14,31 @@ type Props = {
 
 const ChatToolbar = ({ messages, setMessages }: Props) => {
 
+  const { data: isConnectionEstablished, isLoading } = useQuery({
+    queryKey: ['test-connection'],
+    queryFn: async () => {
+      const response = await fetch(`http://localhost:11434`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status !== 200) {
+        return false;
+      }
+
+      return true;
+    },
+  });
+
   const deleteMessages = () => {
     chrome.storage.local.remove('chatMessages');
     setMessages([]);
   }
 
   return (
-    <div className='ml-auto flex flex-row mr-2'>
+    <div className='ml-auto flex flex-row mr-2 gap-2'>
       <WithTooltip 
         delayDuration={200}
         display={<p>Clear Messages</p>}
@@ -30,6 +49,18 @@ const ChatToolbar = ({ messages, setMessages }: Props) => {
             'rounded bg-primary p-1 text-secondary hover:opacity-50 hover:cursor-pointer',
             !messages.length && 'cursor-not-allowed opacity-50'
             )}
+            onClick={deleteMessages}
+            size={22}
+          />
+        }
+      />
+      <WithTooltip 
+        delayDuration={200}
+        display={<p>{!isConnectionEstablished || isLoading ? 'Ollama not connected' : 'Ollama connected'}</p>}
+        side="top"
+        trigger={
+          <Radio
+            className={cn(!isConnectionEstablished || isLoading ? 'text-red-400' : 'text-green-400')}
             onClick={deleteMessages}
             size={22}
           />
