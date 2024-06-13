@@ -1,6 +1,6 @@
 // External Dependencies
 import { useEffect, useState } from 'react';
-import { useToast } from '../panel/components/ui/use-toast';
+import { toast } from 'sonner';
 
 // Relative Dependencies
 import { Label } from '../panel/components/ui/label';
@@ -27,7 +27,6 @@ const Options = () => {
   const [hostUrl, setHostUrl] = useState<string>('http://localhost:11434');
   const [selectedEmbeddingModel, setSelectedEmbeddingModel] =
     useState<Model | null>(null);
-  const { toast } = useToast();
 
   const { data: embeddingModels } = useQuery({
     queryKey: ['models'],
@@ -49,7 +48,7 @@ const Options = () => {
       ]);
       if (savedSelectedModel.selectedEmbeddingModel) {
         setSelectedEmbeddingModel(savedSelectedModel.selectedEmbeddingModel);
-      } else if (models.length !== 0 && !selectedEmbeddingModel) {
+      } else if (embeddingModels.length !== 0 && !selectedEmbeddingModel) {
         setSelectedEmbeddingModel(models[0]);
       }
 
@@ -94,10 +93,7 @@ const Options = () => {
       selectedEmbeddingModel: selectedEmbeddingModel,
     });
 
-    toast({
-      title: 'Settings Saved',
-      description: 'Settings saved',
-    });
+    toast.success('Settings Saved');
   };
 
   return (

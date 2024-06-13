@@ -1,6 +1,5 @@
 // External Dependencies
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
 // Relative Dependencies
 import ChatInput from './components/ChatInput';
@@ -12,6 +11,8 @@ import { Switch } from './components/ui/switch';
 import { getHtmlContent } from '../content/index';
 import ChatToolbar from './components/ChatToolbar';
 import { useModelsQuery } from './hooks/useModelsQuery';
+import { toast } from 'sonner';
+// import { useToast } from './components/ui/use-toast';
 
 const Panel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,6 +21,7 @@ const Panel = () => {
   const [parseWebpage, setParseWebpage] = useState<boolean>(false);
   const [embeddingsLoadingText, setEmbeddingsLoadingText] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
+  // const { toast } = useToast();
 
   const { data: models, isLoading } = useModelsQuery(selectedModel, setSelectedModel);
 
@@ -114,6 +116,18 @@ const Panel = () => {
     }
   }, [parseWebpage]);
 
+  const onParseWebpage = async () => {
+    const data = await chrome.storage.local.get(['selectedEmbeddingModel']);
+    if (!data.selectedEmbeddingModel) {
+      toast.message('No embedding model selected', {
+        description: 'Select an embedding model in the options page',
+        duration: 2000,
+      })
+    } else {
+      setParseWebpage(true);
+    }
+  }
+
   return (
     <div className="flex h-screen max-h-screen flex-col items-center bg-muted/40">
       <ChatHeader
@@ -124,7 +138,7 @@ const Panel = () => {
       />
       <ChatMessages messages={messages} />
       <div className="flex flex-row gap-1 w-4/5 mt-3 items-center">
-        <Switch id="toggle-1" onCheckedChange={(e) => setParseWebpage(e)} checked={parseWebpage} />
+        <Switch id="toggle-1" onCheckedChange={onParseWebpage} checked={parseWebpage} />
         <p>Parse Webpage for Chat</p>
         <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
         <ChatToolbar messages={messages} setMessages={setMessages} />
