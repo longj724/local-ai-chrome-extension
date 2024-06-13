@@ -23,6 +23,9 @@ const SettingsMenu = () => {
         >
           <ModeToggle />
         </DropdownMenuItem>
+        <DropdownMenuItem className='hover:cursor-pointer' onClick={() => chrome.runtime.openOptionsPage()}>
+          <p>View All Settings</p>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

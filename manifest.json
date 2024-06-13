@@ -3,7 +3,8 @@
   "name": "AI Chat",
   "description": "Local AI Chat",
   "options_ui": {
-    "page": "src/pages/options/index.html"
+    "page": "src/pages/options/index.html",
+    "open_in_tab": true
   },
   "background": {
     "service_worker": "src/pages/background/index.ts",
@@ -16,9 +17,6 @@
     "default_icon": {
       "32": "icon-32.png"
     }
-  },
-  "chrome_url_overrides": {
-    "newtab": "src/pages/newtab/index.html"
   },
   "icons": {
     "128": "icon-128.png"

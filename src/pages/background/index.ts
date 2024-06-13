@@ -111,11 +111,26 @@ chrome.runtime.onMessage.addListener(async (message) => {
       const documents = await createDocuments(chunkSize, chunkOverlap, context);
       documentsCount = documents.length;
 
+      const hostUrl = await chrome.storage.local.get(['hostUrl']);
+      const embeddingModel = await chrome.storage.local.get([
+        'selectedEmbeddingModel',
+      ]);
+
+      if (!embeddingModel.selectedEmbeddingModel) {
+        chrome.runtime.sendMessage({
+          type: 'PARSE_WEBPAGE_RESPONSE',
+          error:
+            'No embedding model found. Select an embedding model in the options page.',
+        });
+      }
+
       // Load Documents into the vector store
       // TODO: Add support for selecting embedding model
       vectorStore = new EnhancedMemoryVectorStore(
         new OllamaEmbeddings({
-          baseUrl: 'http://localhost:11434',
+          baseUrl: hostUrl?.hostUrl
+            ? hostUrl.hostUrl
+            : 'http://localhost:11434',
           model: 'mxbai-embed-large',
           keepAlive: '60m',
         })

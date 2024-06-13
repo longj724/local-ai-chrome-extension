@@ -27,7 +27,7 @@ const ChatHeader = ({
   const onModelChange = (model: string) => {
     const newSelectedModel = models?.find((m) => m.name === model) ?? null;
     setSelectedModel(newSelectedModel);
-    chrome.storage.local.set({ selectedModel: newSelectedModel });
+    chrome.storage.local.set({ selectedChatModel: newSelectedModel });
   };
 
   return (

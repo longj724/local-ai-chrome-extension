@@ -17,7 +17,9 @@ const ChatToolbar = ({ messages, setMessages }: Props) => {
   const { data: isConnectionEstablished, isLoading } = useQuery({
     queryKey: ['test-connection'],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:11434`, {
+      const hostUrl = await chrome.storage.local.get(['hostUrl']);
+      console.log('hostUrl', hostUrl.hostUrl);
+      const response = await fetch(`${hostUrl.hostUrl}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

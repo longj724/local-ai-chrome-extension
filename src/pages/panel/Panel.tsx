@@ -11,6 +11,7 @@ import { Model } from './types';
 import { Switch } from './components/ui/switch';
 import { getHtmlContent } from '../content/index';
 import ChatToolbar from './components/ChatToolbar';
+import { useModelsQuery } from './hooks/useModelsQuery';
 
 const Panel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,28 +21,7 @@ const Panel = () => {
   const [embeddingsLoadingText, setEmbeddingsLoadingText] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
 
-  const { data: models, isLoading } = useQuery({
-    queryKey: ['models'],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:11434/api/tags`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const models = (await response.json()).models as Model[];
-
-      const savedSelectedModel = await chrome.storage.local.get(['selectedModel']);
-      if (savedSelectedModel.selectedModel) {
-        setSelectedModel(savedSelectedModel.selectedModel);
-      }  else if (models.length !== 0 && !selectedModel) {
-        setSelectedModel(models[0]);
-      }
-
-      return models;
-    },
-  });
+  const { data: models, isLoading } = useModelsQuery(selectedModel, setSelectedModel);
 
   useEffect(() => {
     if (messages.length > 0) {
