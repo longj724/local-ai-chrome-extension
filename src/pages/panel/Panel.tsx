@@ -1,5 +1,5 @@
 // External Dependencies
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Relative Dependencies
 import ChatInput from './components/ChatInput';
@@ -12,7 +12,6 @@ import { getHtmlContent } from '../content/index';
 import ChatToolbar from './components/ChatToolbar';
 import { useModelsQuery } from './hooks/useModelsQuery';
 import { toast } from 'sonner';
-// import { useToast } from './components/ui/use-toast';
 
 const Panel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,7 +20,7 @@ const Panel = () => {
   const [parseWebpage, setParseWebpage] = useState<boolean>(false);
   const [embeddingsLoadingText, setEmbeddingsLoadingText] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState<chrome.tabs.Tab | null>(null);
-  // const { toast } = useToast();
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
 
   const { data: models, isLoading } = useModelsQuery(selectedModel, setSelectedModel);
 
@@ -136,7 +135,7 @@ const Panel = () => {
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
       />
-      <ChatMessages messages={messages} />
+      <ChatMessages messages={messages} ref={chatMessagesRef}/>
       <div className="flex flex-row gap-1 w-4/5 mt-3 items-center">
         <Switch id="toggle-1" onCheckedChange={onParseWebpage} checked={parseWebpage} />
         <p>Parse Webpage for Chat</p>
@@ -145,13 +144,13 @@ const Panel = () => {
       </div>
       <ChatInput
         currentTab={currentTab}
+        messageContainerRef={chatMessagesRef}
         messages={messages}
         model={selectedModel}
         parseWebpage={parseWebpage}
         selectedText={selectedText}
         setMessages={setMessages}
         setSelectedText={setSelectedText}
-        
       />
     </div>
   );

@@ -12,6 +12,7 @@ import SelectedText from './SelectedText';
 
 type Props = {
   currentTab: chrome.tabs.Tab | null;
+  messageContainerRef: React.RefObject<HTMLDivElement>;
   messages: Message[];
   model: Model | null;
   parseWebpage: boolean;
@@ -20,7 +21,16 @@ type Props = {
   setSelectedText: Dispatch<SetStateAction<string | null>>;
 };
 
-const ChatInput = ({ currentTab, messages, model, parseWebpage, selectedText, setMessages, setSelectedText }: Props) => {
+const ChatInput = ({
+  currentTab,
+  messageContainerRef,
+  messages,
+  model,
+  parseWebpage,
+  selectedText,
+  setMessages,
+  setSelectedText,
+}: Props) => {
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -165,6 +175,14 @@ const ChatInput = ({ currentTab, messages, model, parseWebpage, selectedText, se
 
     setMessages((prev) => [...prev!, newUserQuestion]);
     setUserInput('');
+
+    if (messageContainerRef.current) {
+      (
+        messageContainerRef as React.MutableRefObject<HTMLDivElement>
+      ).current.scrollTop = (
+        messageContainerRef as React.MutableRefObject<HTMLDivElement>
+      ).current.scrollHeight;
+    }
   };
 
   const stopGenerating = () => {
