@@ -37,7 +37,7 @@ const ChatMessages = forwardRef<HTMLDivElement, Props>(({ messages }, ref) => {
 
   return messages.length > 0 ? (
     <div className="flex-1 overflow-auto p-4 w-full" onScroll={handleScroll} ref={ref}>
-      <div className="grid gap-4">
+      <div className="flex flex-col gap-4">
         {messages.map((message, index) => (
           <ChatMessage key={index} message={message} />
         ))}
