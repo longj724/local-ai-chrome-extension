@@ -61,7 +61,7 @@ const ChatHeader = ({
           </div>
         )}
       </div>
-      <div className="flex flex-1 justify-center">Local AI Chat</div>
+      <h1 className="flex flex-1 justify-center text-md">Local AI Chat</h1>
       <div className="flex flex-1 justify-end">
         <SettingsMenu />
       </div>

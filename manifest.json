@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "AI Chat",
+  "name": "Local AI",
   "description": "Local AI Chat",
   "options_ui": {
     "page": "src/pages/options/index.html",
@@ -15,11 +15,11 @@
   },
   "action": {
     "default_icon": {
-      "32": "icon-32.png"
+      "32": "icon32.png"
     }
   },
   "icons": {
-    "128": "icon-128.png"
+    "128": "icon128.png"
   },
   "permissions": [
     "activeTab",
@@ -40,7 +40,7 @@
   "devtools_page": "src/pages/devtools/index.html",
   "web_accessible_resources": [
     {
-      "resources": ["contentStyle.css", "icon-128.png", "icon-32.png"],
+      "resources": ["contentStyle.css", "icon128.png", "icon32.png"],
       "matches": []
     }
   ]
