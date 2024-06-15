@@ -32,3 +32,8 @@ interface Options {
 export interface Model {
   name: string;
 }
+
+export interface Prompt {
+  id: string;
+  content: string;
+}

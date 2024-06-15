@@ -9,6 +9,7 @@ import { cn } from '../lib/utils';
 import { ChatRequest, ChatResponse, Message } from '../types';
 import { Model } from '../types';
 import SelectedText from './SelectedText';
+import MessagePromptsMenu from './MessagePromptsMenu';
 
 type Props = {
   currentTab: chrome.tabs.Tab | null;
@@ -34,78 +35,7 @@ const ChatInput = ({
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-
-  const { mutate: sendMessage } = useMutation({
-    mutationFn: async () => {
-      const chatRequest: ChatRequest = {
-        model: model?.name ?? 'llama3',
-        messages: [...messages, { role: 'user', content: selectedText ? `${selectedText}\n ${userInput}` : userInput }],
-      };
-
-      const response = await fetch('http://localhost:11434/api/chat', {
-        method: 'POST',
-        body: JSON.stringify(chatRequest),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      return response.body?.getReader();
-    },
-    onSuccess: async (
-      data: ReadableStreamDefaultReader<Uint8Array> | undefined
-    ) => {
-      setUserInput('');
-      const newMessage: Message = {
-        role: 'assistant',
-        content: '',
-      };
-      const decoder = new TextDecoder();
-      let firstPass = true;
-
-      if (data) {
-        while (true && isGenerating) {
-          const result = await data.read();
-          const { done, value } = result;
-
-          if (done) {
-            break;
-          }
-
-          const decodedValue: ChatResponse = JSON.parse(
-            decoder.decode(value, { stream: true })
-          );
-          newMessage.content += decodedValue.message.content;
-          console.log(decodedValue.message.content);
-
-          if (value) {
-            if (firstPass) {
-              setMessages((prev: Message[]) => [...prev!, newMessage]);
-              firstPass = false;
-            } else {
-              setMessages((prev: Message[]) => {
-                if (prev) {
-                  const existingMessages = prev.slice(0, -1);
-                  const lastMessage = prev[prev.length - 1]!;
-                  const updatedLastMessage = {
-                    ...lastMessage,
-                    content: newMessage.content,
-                  };
-                  return [...existingMessages, updatedLastMessage];
-                }
-                return prev;
-              });
-            }
-          }
-        }
-      }
-
-      setIsGenerating(false);
-    },
-    onError: (error) => {
-      // TODO: Display some message about handling error
-    },
-  });
+  const chatInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const handleMessage = (
@@ -141,8 +71,6 @@ const ChatInput = ({
     };
   }, []);
 
-  const chatInputRef = useRef<HTMLTextAreaElement>(null);
-
   const handleInputChange = (text: string) => {
     setUserInput(text);
   };
@@ -167,10 +95,27 @@ const ChatInput = ({
     });
   };
 
+  const handleSendMessageWithPrompt = (prompt: string) => {
+    setIsGenerating(true);
+    const message = `${prompt}:\n${userInput}`;
+    updateUserMessageOptimistically(prompt);
+    
+    chrome.runtime.sendMessage({ 
+      content: selectedText ? `"""\n${selectedText}\n"""\n${message}` : message,
+      model: model?.name ?? 'llama3',
+      ollamaUrl: 'http://localhost:11434',
+      type: 'SEND_MESSAGE',
+      url: currentTab?.url ? currentTab.url : '',
+      useWebPageContext: parseWebpage,
+    });
+  };
+
   const updateUserMessageOptimistically = (prompt = '') => {
+    const message = prompt ? `${prompt}:\n${userInput}` : userInput;
+
     const newUserQuestion: Message = {
       role: 'user',
-      content: selectedText ? `"""\n${selectedText}\n"""\n${userInput}` : userInput,
+      content: selectedText ? `"""\n${selectedText}\n"""\n${message}` : message,
     };
 
     setMessages((prev) => [...prev!, newUserQuestion]);
@@ -225,6 +170,10 @@ const ChatInput = ({
                 size={30}
               />
             )}
+            <MessagePromptsMenu
+              sendMessageWithPrompt={handleSendMessageWithPrompt}
+              userInput={userInput}
+            />
           </div>
         </div>
       </div>
