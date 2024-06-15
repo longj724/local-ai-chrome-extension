@@ -82,28 +82,31 @@ const ChatInput = ({
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     setIsGenerating(true);
     updateUserMessageOptimistically();
+    const hostUrl = (await chrome.storage.local.get(['hostUrl'])).hostUrl;
+  
     chrome.runtime.sendMessage({ 
       content: selectedText ? `"""\n${selectedText}\n"""\n${userInput}` : userInput,
       model: model?.name ?? 'llama3',
-      ollamaUrl: 'http://localhost:11434',
+      ollamaUrl: hostUrl ? hostUrl : 'http://localhost:11434',
       type: 'SEND_MESSAGE',
       url: currentTab?.url ? currentTab.url : '',
       useWebPageContext: parseWebpage,
     });
   };
 
-  const handleSendMessageWithPrompt = (prompt: string) => {
+  const handleSendMessageWithPrompt = async (prompt: string) => {
     setIsGenerating(true);
     const message = `${prompt}:\n${userInput}`;
     updateUserMessageOptimistically(prompt);
+    const hostUrl = (await chrome.storage.local.get(['hostUrl'])).hostUrl;
     
     chrome.runtime.sendMessage({ 
       content: selectedText ? `"""\n${selectedText}\n"""\n${message}` : message,
       model: model?.name ?? 'llama3',
-      ollamaUrl: 'http://localhost:11434',
+      ollamaUrl: hostUrl ? hostUrl : 'http://localhost:11434',
       type: 'SEND_MESSAGE',
       url: currentTab?.url ? currentTab.url : '',
       useWebPageContext: parseWebpage,
