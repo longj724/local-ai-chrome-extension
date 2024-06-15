@@ -53,7 +53,6 @@ const MessagePromptsMenu = ({ userInput, sendMessageWithPrompt }: Props) => {
           <ChevronUp
             className={cn(
               "rounded bg-primary p-1 text-secondary hover:opacity-50",
-              !userInput && "cursor-not-allowed opacity-50",
             )}
             size={30}
           />
