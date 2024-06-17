@@ -138,7 +138,7 @@ const Panel = () => {
       <ChatMessages messages={messages} ref={chatMessagesRef}/>
       <div className="flex flex-row gap-1 w-4/5 mt-3 items-center">
         <Switch id="toggle-1" onCheckedChange={onParseWebpage} checked={parseWebpage} />
-        <p>Parse Webpage for Chat</p>
+        <p>Parse Web Page for Chat</p>
         <p>{embeddingsLoadingText && `- ${embeddingsLoadingText}`}</p>
         <ChatToolbar messages={messages} setMessages={setMessages} />
       </div>

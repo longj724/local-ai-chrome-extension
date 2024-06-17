@@ -152,6 +152,34 @@ const Options = () => {
                 </div>
               </div>
             </section>
+            <section>
+              <h2 className="text-xl font-semibold mb-4">Trouble Shooting</h2>
+              <div>
+                <p className="text-sm">
+                  In order for the extension to connect to your Ollama Server:
+                </p>
+                <ol className="list-decimal list-inside">
+                  <li className="mt-2">
+                    Ensure your Ollama Server is running. Ollama can be
+                    downloaded{' '}
+                    <a
+                      target="_blank"
+                      href="https://ollama.com/"
+                      className="text-blue-400"
+                    >
+                      here.
+                    </a>
+                  </li>
+                  <li className="mt-2">
+                    On your Mac or PC set the following environment variables:
+                    <ul className="list-disc list-inside ml-4">
+                      <li>OLLAMA_ORIGINS=chrome-extension://</li>
+                      <li>OLLAMA_HOST=0.0.0.0</li>
+                    </ul>
+                  </li>
+                </ol>
+              </div>
+            </section>
           </div>
         </div>
       </main>
