@@ -1,6 +1,6 @@
 # Local AI Web Chat
 
-Local AI Web Chat is an open-source Chrome Extension that provides a sidebar to allow you to easily chat with any local Ollama model from within your browser.
+Local AI Web Chat is an open-source Chrome Extension that provides a sidebar to allow you to easily chat with any model running on your Ollama server from within your browser.
 
 ## Installation
 
@@ -64,4 +64,4 @@ Default Keyboard Shortcut: `Ctrl+Shift+P` -->
 
 Local AI Web Chat does not collect any personal data. All chat requests are only sent to your Ollama server.
 
-Prompts and chat history are stored locally in the browser storage.
+Prompts and chat history are stored locally in your browsers storage.
